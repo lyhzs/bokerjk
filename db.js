@@ -25,12 +25,12 @@ let insertData = (table,datas,callback)=>{
   }
   fields=fields.slice(0,-1);
   values=values.slice(0,-1);
-  console.log(fields,values);
-  // var sql="INSERT INTO "+table+'('+fields+') VALUES('+values+')';
-   //var maintext=JSON.parse(datas.bodytext)
-   var maintext=datas.bodytext
-   var sql=`insert into document values (${datas.id},${datas.title},${datas.classify},${maintext},${datas.timer})`
+  // console.log(fields,values);
+   var sql="INSERT INTO "+table+'('+fields+') VALUES('+values+')';
 
+  //  var sql="insert into document(id,title,classify,maintext,timer) values ("+data.id+","+data.title+","+data.classify+","+data.maintext+","+data.timer+")"
+   //var sql="insert into document values ("+data.id+","+data.title+","+data.classify+","+data.bodytext+","+data.timer+")"
+// ${datas.title},${datas.classify},${maintext},${datas.timer}
   connection.query(sql,callback);
 }
 // 更新一条数据
