@@ -5,38 +5,54 @@ var express = require('express');
 var mysql = require('mysql');     //引入mysql模块
 
 var path = require('path');
-var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var bodyParser = require('body-parser');//解析,用req.body获取post参数
+var cookieParser = require('cookie-parser');
+var cookieSession = require('cookie-session');
+var session = require('express-session'); 
 var app = express();
 
+app.use(cookieParser())
+//配置中间件
+
+app.use(session({
+  resave: true, // don't save session if unmodified
+  saveUninitialized: false, // don't create session until something stored
+  secret: 'admin', //密钥
+  name: 'islogin', //这里的name值得是cookie的name，默认cookie的name是：connect.sid
+  cookie: {
+      maxAge: 1000*60*60*24
+  } //设置maxAge是80000ms，即80s后session和相应的cookie失效过期
+}));
 
 
-  app.all('*', function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    //Access-Control-Allow-Headers ,可根据浏览器的F12查看,把对应的粘贴在这里就行
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    res.header('Access-Control-Allow-Methods', '*');
-    res.header('Content-Type', 'application/json;charset=utf-8');
+ app.all('*', function (req, res, next) {
+  // res.header('Access-Control-Allow-Origin', '*');
+   res.header("Access-Control-Allow-Origin", "http://180.76.151.100:801");
+  //res.header("Access-Control-Allow-Origin", "http://localhost:8082");
+  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
     next();
   });
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true})) 
-
 const db = require("../testjk/db")
+
+
+
+
 
 //查询
 app.get('/look',function (req,res) {
@@ -106,35 +122,49 @@ app.post('/add',function (req,res) {
 app.post('/login',function (req,res) {
 
   var adminuser = req.body
- 
-  db.selectAll('select * from adminuser',(e,r)=>{
-    
-    // console.log(r)
-    // console.log(adminuser)
+  //console.log(req.session.userinfo)
 
-     var loginstatus = r.filter(item=>item.name==adminuser.name)
-    //  console.log(loginstatus)
-     if(loginstatus.length>0){
-       if(loginstatus[0].password==adminuser.password){
+  //cookies没过期 直接登陆成功
+  if(req.session.userinfo){
+    res.send({
+      state:true,
+      data:req.session.userinfo
+    })
+  }else{
+     //cookies过期 登陆
+    db.selectAll('select * from adminuser',(e,r)=>{
+      // console.log(r)
+      // console.log(adminuser)
+  
+       var loginstatus = r.filter(item=>item.name==adminuser.name)
+      //  console.log(loginstatus)
+       if(loginstatus.length>0){
+         if(loginstatus[0].password==adminuser.password){
+          //登陆成功 添加cookies 
+          req.session.userinfo=adminuser.name;
+            res.send({
+              state:true,
+              data:"登录成功"
+            })
+         }else{
           res.send({
-            state:true,
-            data:"登录成功"
+            state:false,
+            data:"密码错误"
           })
+         }
        }else{
-        res.send({
-          state:false,
-          data:"密码错误"
-        })
+          res.send({
+            state:false,
+            data:"账号错误"
+          })
        }
-     }else{
-        res.send({
-          state:false,
-          data:"账号错误"
-        })
-     }
+  
+  
+   })
+
+  }
 
 
-})
 
 
 });
