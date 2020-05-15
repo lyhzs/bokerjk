@@ -29,16 +29,17 @@ app.use(session({
 }));
 
 
- app.all('*', function (req, res, next) {
-  // res.header('Access-Control-Allow-Origin', '*');
-   res.header("Access-Control-Allow-Origin", "http://180.76.151.100:801");
-  //res.header("Access-Control-Allow-Origin", "http://localhost:8082");
-  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-    next();
-  });
+app.all('*', function (req, res, next) {
+  if( req.headers.origin == "http://180.76.151.100:801" || "http://192.168.31.219:8082" ){
+        res.header("Access-Control-Allow-Origin", req.headers.origin);
+         res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+        res.header('Access-Control-Allow-Credentials', 'true');
+        res.header("Access-Control-Allow-Headers", "X-Requested-With");
+         res.header('Access-Control-Allow-Headers', 'Content-Type');
+    }
+   next();	
+ });
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
