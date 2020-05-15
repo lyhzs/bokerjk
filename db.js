@@ -4,15 +4,17 @@ const connection = conn();
 let selectAll = (sql,callback)=>{
   connection.query(sql,(err,result)=>{
     if(err){
-        console.log('错误信息-',err.sqlMessage);
+		// console.log(err)
+        // console.log('错误信息-',err.sqlMessage);
         let errNews = err.sqlMessage;
         callback(errNews,'');
         return;
     } 
     var string=JSON.stringify(result); 
+	  // console.log(string);
     var data = JSON.parse(string);
     callback('',data);
-    // console.log(string);
+  
   })
 }
 // 插入一条数据
