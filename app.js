@@ -142,7 +142,7 @@ app.post('/login',function (req,res) {
        if(loginstatus.length>0){
          if(loginstatus[0].password==adminuser.password){
           //登陆成功 添加cookies 
-          req.session.userinfo=adminuser.name;
+          if(adminuser.ischecked=="true"){req.session.userinfo=adminuser.name;}
             res.send({
               state:true,
               data:"登录成功"
