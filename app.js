@@ -170,6 +170,31 @@ app.post('/login',function (req,res) {
 
 });
 
+//更新
+app.post('/updata',function (req,res) {
+
+  var adminuser = req.body
+
+  // console.log(adminuser) // 往数据库种添加的数据
+    db.updateData("document",adminuser,{id:adminuser.id},(e,r)=>{
+      console.log(e)
+      if(e){
+        console.log("false")
+         res.send({
+          state:false,
+          data:{}
+        })
+      }else{
+        console.log("true")
+        res.send({
+          state:true,
+          data:adminuser
+        })
+      }
+      
+  })
+});
+
 
 // connection.end();
 
